@@ -50,21 +50,38 @@ make clean
 
 ### 4. Docker 部署
 
-构建镜像：
+构建镜像（推荐使用阿里云加速器）：
 ```bash
-docker build -t notion-runner-image .
+docker build --network=host -t notion-runner-image .
 ```
+> 如需全局加速，可在 ~/.docker/config.json 配置阿里云镜像加速器，详见[官方文档](https://cr.console.aliyun.com/cn-hangzhou/instance/mirrors)。
 
-运行容器（挂载配置、日志和数据库）：
+运行容器（可选挂载外部 db 文件）：
 ```bash
 docker run -d \
   --name notion-runner \
   -v $(pwd)/logs:/app/logs \
   -v $(pwd)/config/.env:/app/config/.env \
   -v $(pwd)/config/tasks_config.json:/app/config/tasks_config.json \
+  # 如需持久化数据库，可挂载本地 db 文件（可选）
   -v $(pwd)/task_log.db:/app/task_log.db \
   notion-runner-image
 ```
+> 如果未挂载 db 文件，容器会自动创建空数据库并打印提示日志；如挂载则会检测并提示已加载外部 db。
+
+### 5. 运行测试
+
+```bash
+make test
+```
+- 激活虚拟环境并运行 tests 目录下所有自动化测试。
+
+### 6. 构建 Docker 镜像
+
+```bash
+make docker-build
+```
+- 一键构建 notion-runner-image 镜像。
 
 ## 主要功能
 - 任务模块化，统一接口，易于扩展

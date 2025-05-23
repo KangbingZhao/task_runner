@@ -64,6 +64,14 @@ def register_tasks(scheduler, logger, task_config):
 def main():
     load_dotenv()
     logger = setup_logging()
+    db_path = os.path.abspath('task_log.db')
+    # 检查数据库文件是否存在，提示挂载情况
+    if os.path.exists(db_path):
+        logger.info(f"检测到外部 db 文件，已加载：{db_path}")
+        print(f"[INFO] 检测到外部 db 文件，已加载：{db_path}")
+    else:
+        logger.info(f"未挂载外部 db，已自动创建空数据库：{db_path}")
+        print(f"[INFO] 未挂载外部 db，已自动创建空数据库：{db_path}")
     db.connect()
     db.create_tables([TaskLog])
     with open("config/tasks_config.json") as f:
