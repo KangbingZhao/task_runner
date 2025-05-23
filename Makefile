@@ -1,4 +1,4 @@
-.PHONY: init run clean
+.PHONY: init run clean test docker-build
 
 VENV=.venv
 
@@ -11,3 +11,9 @@ run:
 
 clean:
 	rm -rf $(VENV)
+
+test:
+	. $(VENV)/bin/activate && python -m unittest discover -s tests
+
+docker-build:
+	docker build -t notion-runner-image .
