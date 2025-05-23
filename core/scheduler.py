@@ -7,6 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv
 from peewee import *
+import pathlib
 
 def setup_logging():
     os.makedirs("logs", exist_ok=True)
@@ -61,9 +62,18 @@ def register_tasks(scheduler, logger, task_config):
             logger.info(f"Task {task_name} registered with cron: {cron_expr}")
             print(f"[INFO] 任务 {task_name} 已加载，cron: {cron_expr}")
 
+def get_version():
+    version_file = pathlib.Path(__file__).parent.parent / "VERSION"
+    if version_file.exists():
+        return version_file.read_text().strip()
+    return "unknown"
+
 def main():
     load_dotenv()
     logger = setup_logging()
+    version = get_version()
+    print(f"[INFO] Notion Task Runner 版本: {version}")
+    logger.info(f"Notion Task Runner 版本: {version}")
     db_path = os.path.abspath('task_log.db')
     # 检查数据库文件是否存在，提示挂载情况
     if os.path.exists(db_path):
