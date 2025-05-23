@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  notion-runner:
+    image: notion-runner-image  # 使用与 README 中一致的镜像名称
+    container_name: notion-runner
+    volumes:
+      - ../logs:/app/logs  # 挂载日志目录
+      - ../config/.env:/app/config/.env  # 挂载环境变量配置
+      - ../config/tasks_config.json:/app/config/tasks_config.json  # 挂载任务配置
+      # - ../task_log.db:/app/task_log.db  # 可选：如需持久化数据库请取消注释
+    working_dir: /app
+    command: python core/scheduler.py
+    network_mode: "host"  # 与 README 中的 --network=host 对应
