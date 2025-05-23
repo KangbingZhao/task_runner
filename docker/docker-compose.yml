@@ -1,13 +1,22 @@
-version: '3.8'
 services:
   notion-runner:
-    image: notion-runner-image  # 使用与 README 中一致的镜像名称
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: notion-runner-image
     container_name: notion-runner
     volumes:
-      - ../logs:/app/logs  # 挂载日志目录
+      - ../logs:/app/logs  # 持久化log
       - ../config/.env:/app/config/.env  # 挂载环境变量配置
       - ../config/tasks_config.json:/app/config/tasks_config.json  # 挂载任务配置
-      # - ../task_log.db:/app/task_log.db  # 可选：如需持久化数据库请取消注释
+      - ../tasks:/app/tasks  # 挂载 tasks 目录
+      - task-data:/app/data  # 持久化数据文件
+    environment:
+      - DB_PATH=/app/data/task_log.db  # 设置数据库路径
+      - PYTHONPATH=/app  # 确保可以导入 tasks 模块
     working_dir: /app
     command: python core/scheduler.py
-    network_mode: "host"  # 与 README 中的 --network=host 对应
+    network_mode: "host"
+
+volumes:
+  task-data:  # 声明数据卷

@@ -13,14 +13,28 @@ def setup_logging():
     os.makedirs("logs", exist_ok=True)
     logger = logging.getLogger("task_runner")
     logger.setLevel(logging.INFO)
-    handler = logging.FileHandler("logs/task.log")
+    
+    # 配置文件处理器
+    file_handler = logging.FileHandler("logs/task.log")
+    # 配置终端处理器
+    console_handler = logging.StreamHandler()
+    
+    # 设置日志格式
     formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    # 添加两个处理器
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
     return logger
 
 # SQLite db setup
-db = SqliteDatabase('task_log.db')
+db_path = os.getenv('DB_PATH', 'task_log.db')
+# Ensure the database directory exists
+os.makedirs(os.path.dirname(db_path), exist_ok=True)
+db = SqliteDatabase(db_path)
 
 class TaskLog(Model):
     task_name = CharField()
@@ -74,16 +88,11 @@ def main():
     version = get_version()
     print(f"[INFO] Notion Task Runner 版本: {version}")
     logger.info(f"Notion Task Runner 版本: {version}")
-    db_path = os.path.abspath('task_log.db')
-    # 检查数据库文件是否存在，提示挂载情况
-    if os.path.exists(db_path):
-        logger.info(f"检测到外部 db 文件，已加载：{db_path}")
-        print(f"[INFO] 检测到外部 db 文件，已加载：{db_path}")
-    else:
-        logger.info(f"未挂载外部 db，已自动创建空数据库：{db_path}")
-        print(f"[INFO] 未挂载外部 db，已自动创建空数据库：{db_path}")
+    db_path = os.getenv('DB_PATH', 'task_log.db')
+    logger.info(f"使用数据库：{db_path}")
+    print(f"[INFO] 使用数据库：{db_path}")
     db.connect()
-    db.create_tables([TaskLog])
+    db.create_tables([TaskLog], safe=True)
     with open("config/tasks_config.json") as f:
         task_config = json.load(f)
     scheduler = BackgroundScheduler()
