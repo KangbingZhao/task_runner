@@ -31,9 +31,10 @@ notion-task-runner/
 ### 1. 安装依赖（推荐使用 [uv](https://github.com/astral-sh/uv) 工具）
 
 ```bash
-make build
+make init
 ```
 - 自动创建 `.venv` 虚拟环境并用 uv 安装依赖，不污染全局 Python。
+- 同时安装 pre-commit 并注册 commit-msg 钩子。
 
 ### 2. 运行调度器
 

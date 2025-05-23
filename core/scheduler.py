@@ -53,12 +53,11 @@ def wrap_task(task_name, func, logger):
         try:
             func()
             duration = (datetime.datetime.now() - start_time).seconds
-            TaskLog.create(task_name=task_name, status="success", run_time=start_time, duration=duration)
-            logger.info(f"{task_name} success")
+            logger.info(f"{task_name} completed in {duration}s")
         except Exception as e:
             duration = (datetime.datetime.now() - start_time).seconds
-            TaskLog.create(task_name=task_name, status="failed", run_time=start_time, duration=duration, message=str(e))
-            logger.exception(f"{task_name} failed")
+            logger.error(f"{task_name} failed in {duration}s with error: {e}")
+            logger.exception(e)
     return job
 
 def register_tasks(scheduler, logger, task_config):
