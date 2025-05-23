@@ -1,13 +1,13 @@
-.PHONY: build run clean
+.PHONY: init run clean
 
 VENV=.venv
 
-build:
+init:
 	uv venv $(VENV)
 	. $(VENV)/bin/activate && uv pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
 
 run:
-	. $(VENV)/bin/activate && python core/scheduler.py
+	PYTHONPATH=. . $(VENV)/bin/activate && python core/scheduler.py
 
 clean:
 	rm -rf $(VENV)
