@@ -1,0 +1,7 @@
+{
+  "daily_journal": {
+    "enabled": true,
+    "cron": "0 0 * * *",
+    "description": "每日创建 Notion 日记"
+  }
+}
