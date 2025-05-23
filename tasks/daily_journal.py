@@ -15,7 +15,7 @@ def run():
         query_url = f"https://api.notion.com/v1/databases/{database_id}/query"
         query_payload = {
             "filter": {
-                "property": "日期",
+                "property": "Date",
                 "date": {
                     "equals": date_str
                 }
@@ -45,7 +45,7 @@ def run():
             "Name": {
                 "title": [{"text": {"content": f"日记 {today}"}}]
             },
-            "日期": {
+            "Date": {
                 "date": {"start": today}
             }
         },
