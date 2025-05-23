@@ -36,7 +36,7 @@ db.connect()
 db.create_tables([TaskLog])
 
 # Load task config
-with open("tasks_config.json") as f:
+with open("config/tasks_config.json") as f:
     task_config = json.load(f)
 
 # Dynamic import and registration
