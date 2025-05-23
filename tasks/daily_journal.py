@@ -43,7 +43,7 @@ def run():
         "parent": {"database_id": DATABASE_ID},
         "properties": {
             "Name": {
-                "title": [{"text": {"content": f"日记 {today}"}}]
+                "title": [{"text": {"content": f"🌤 Daily Reflection - {today}"}}]
             },
             "Date": {
                 "date": {"start": today}
