@@ -22,11 +22,12 @@ notion-task-runner/
 
 ## 快速开始
 
-> **注意：首次使用前请先安装 uv 工具（推荐用 pipx 安装）：**
+> **注意：首次使用前请安装 uv 工具（推荐使用官方安装脚本）：**
 > ```bash
-> pipx install uv
+> curl -Ls https://astral.sh/uv/install.sh | bash
 > ```
-> 或参考 [uv 官方文档](https://github.com/astral-sh/uv)。
+> 安装完成后请确保将 `~/.local/bin` 添加到 PATH。
+> 详情请参考 [uv 官方文档](https://github.com/astral-sh/uv)。
 
 ### 1. 安装依赖（推荐使用 [uv](https://github.com/astral-sh/uv) 工具）
 
