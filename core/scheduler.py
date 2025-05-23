@@ -33,6 +33,8 @@ def setup_logging():
 # SQLite db setup
 db_path = os.getenv('DB_PATH', 'task_log.db')
 # Ensure the database directory exists
+if not os.path.dirname(db_path):
+    db_path = os.path.join(os.getcwd(), db_path)
 os.makedirs(os.path.dirname(db_path), exist_ok=True)
 db = SqliteDatabase(db_path)
 
