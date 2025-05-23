@@ -1,10 +1,10 @@
 import os
 import requests
 import datetime
-from dotenv import load_dotenv
+from core.utils import load_env
 
 def run():
-    load_dotenv()
+    load_env()
     NOTION_TOKEN = os.getenv("NOTION_TOKEN")
     DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
     if not NOTION_TOKEN or not DATABASE_ID:

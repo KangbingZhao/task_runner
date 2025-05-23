@@ -8,6 +8,8 @@ from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv
 from peewee import *
 import pathlib
+from logging.handlers import RotatingFileHandler
+from jsonschema import validate, ValidationError
 
 def setup_logging():
     os.makedirs("logs", exist_ok=True)
@@ -15,7 +17,7 @@ def setup_logging():
     logger.setLevel(logging.INFO)
     
     # 配置文件处理器
-    file_handler = logging.FileHandler("logs/task.log")
+    file_handler = RotatingFileHandler("logs/task.log", maxBytes=10 * 1024 * 1024, backupCount=7)
     # 配置终端处理器
     console_handler = logging.StreamHandler()
     
@@ -64,6 +66,10 @@ def register_tasks(scheduler, logger, task_config):
     for task_name, meta in task_config.items():
         if meta.get("enabled", False):
             module = importlib.import_module(f"tasks.{task_name}")
+            if not hasattr(module, "run"):
+                logger.error(f"任务 {task_name} 缺少 run() 方法，跳过注册")
+                print(f"[ERROR] 任务 {task_name} 缺少 run() 方法，跳过注册")
+                continue
             cron_expr = meta["cron"]
             cron_fields = cron_expr.strip().split()
             if len(cron_fields) == 6:
@@ -96,6 +102,29 @@ def main():
     db.create_tables([TaskLog], safe=True)
     with open("config/tasks_config.json") as f:
         task_config = json.load(f)
+
+    task_schema = {
+        "type": "object",
+        "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                "type": "object",
+                "required": ["enabled", "cron", "description"],
+                "properties": {
+                    "enabled": {"type": "boolean"},
+                    "cron": {"type": "string"},
+                    "description": {"type": "string"}
+                }
+            }
+        }
+    }
+
+    try:
+        validate(instance=task_config, schema=task_schema)
+        logger.info("任务配置校验通过")
+    except ValidationError as ve:
+        logger.error(f"任务配置校验失败: {ve}")
+        raise ve
+
     scheduler = BackgroundScheduler()
     register_tasks(scheduler, logger, task_config)
     scheduler.start()
