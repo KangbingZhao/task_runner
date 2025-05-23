@@ -63,8 +63,10 @@ for task_name, meta in task_config.items():
         trigger = CronTrigger.from_crontab(cron_expr)
         scheduler.add_job(wrap_task(task_name, module.run), trigger=trigger, id=task_name)
         logger.info(f"Task {task_name} registered with cron: {cron_expr}")
+        print(f"[INFO] 任务 {task_name} 已加载，cron: {cron_expr}")
 
 scheduler.start()
+print("[INFO] 调度器启动成功，正在等待任务调度...")
 
 # Keep the script alive
 try:
