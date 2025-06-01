@@ -28,50 +28,52 @@ def run():
         results = resp.json().get("results", [])
         return len(results) > 0
 
-    today = datetime.date.today().isoformat()
     headers = {
         "Authorization": f"Bearer {NOTION_TOKEN}",
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
     }
 
-    if page_exists(today, headers, DATABASE_ID):
-        print(f"{today} 的日记已存在，跳过创建。")
-        return
+    for offset in range(3):  # 创建当天及后续两天
+        target_date = (datetime.date.today() + datetime.timedelta(days=offset)).isoformat()
 
-    data = {
-        "parent": {"database_id": DATABASE_ID},
-        "properties": {
-            "Name": {
-                "title": [{"text": {"content": f"🌤 Daily Reflection - {today}"}}]
-            },
-            "Date": {
-                "date": {"start": today}
-            }
-        },
-        "children": [
-            {
-                "object": "block",
-                "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"type": "text", "text": {"content": "今天的感受"}}]
+        if page_exists(target_date, headers, DATABASE_ID):
+            print(f"{target_date} 的日记已存在，跳过创建。")
+            continue
+
+        data = {
+            "parent": {"database_id": DATABASE_ID},
+            "properties": {
+                "Name": {
+                    "title": [{"text": {"content": f"🌤 Daily Reflection - {target_date}"}}]
+                },
+                "Date": {
+                    "date": {"start": target_date}
                 }
             },
-            {
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {"rich_text": []}
-            }
-        ]
-    }
+            "children": [
+                {
+                    "object": "block",
+                    "type": "heading_2",
+                    "heading_2": {
+                        "rich_text": [{"type": "text", "text": {"content": "今天的感受"}}]
+                    }
+                },
+                {
+                    "object": "block",
+                    "type": "paragraph",
+                    "paragraph": {"rich_text": []}
+                }
+            ]
+        }
 
-    try:
-        response = requests.post("https://api.notion.com/v1/pages", headers=headers, json=data)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"页面创建失败: {e}")
-    else:
-        print("页面创建成功:", response.json().get("url"))
+        try:
+            response = requests.post("https://api.notion.com/v1/pages", headers=headers, json=data)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"{target_date} 页面创建失败: {e}")
+        else:
+            print(f"{target_date} 页面创建成功:", response.json().get("url"))
 
 if __name__ == "__main__":
     run()
