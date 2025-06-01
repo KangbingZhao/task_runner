@@ -57,6 +57,7 @@ def run():
 
         try:
             response = requests.post("https://api.notion.com/v1/pages", headers=headers, json=data)
+            print("API Response:", response.text)  # 打印 API 响应内容
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             print(f"{target_date} 页面创建失败: {e}")
