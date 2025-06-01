@@ -40,6 +40,18 @@ def run():
         response = requests.patch(url, headers=headers, json=data)
         response.raise_for_status()
 
+    def get_template_properties(template_id, headers):
+        url = f"https://api.notion.com/v1/pages/{template_id}"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        properties = response.json().get("properties", {})
+        # 过滤掉只读属性
+        filtered_properties = {
+            key: value for key, value in properties.items()
+            if key not in ["created_time", "last_edited_time", "created_by", "last_edited_by"]
+        }
+        return filtered_properties
+
     headers = {
         "Authorization": f"Bearer {NOTION_TOKEN}",
         "Content-Type": "application/json",
@@ -58,16 +70,25 @@ def run():
             print(f"{target_date} 的日记已存在，跳过创建。")
             continue
 
+        # 获取模板的 properties
+        template_properties = get_template_properties(TEMPLATE_ID, headers)
+
+        # 自定义的 properties
+        custom_properties = {
+            "Name": {
+                "title": [{"text": {"content": f"🌤 Daily Reflection - {target_date}"}}]
+            },
+            "Date": {
+                "date": {"start": target_date}
+            }
+        }
+
+        # 合并模板 properties 和自定义 properties
+        merged_properties = {**template_properties, **custom_properties}
+
         data = {
             "parent": {"database_id": DATABASE_ID},
-            "properties": {
-                "Name": {
-                    "title": [{"text": {"content": f"🌤 Daily Reflection - {target_date}"}}]
-                },
-                "Date": {
-                    "date": {"start": target_date}
-                }
-            }
+            "properties": merged_properties
         }
 
         try:
