@@ -7,9 +7,8 @@ def run():
     load_env()
     NOTION_TOKEN = os.getenv("NOTION_TOKEN")
     DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
-    TEMPLATE_ID = os.getenv("NOTION_TEMPLATE_ID")
-    if not NOTION_TOKEN or not DATABASE_ID or not TEMPLATE_ID:
-        print("Missing NOTION_TOKEN, DATABASE_ID or NOTION_TEMPLATE_ID")
+    if not NOTION_TOKEN or not DATABASE_ID:
+        print("Missing NOTION_TOKEN or DATABASE_ID")
         return
 
     def page_exists(date_str, headers, database_id):
@@ -29,11 +28,28 @@ def run():
         results = resp.json().get("results", [])
         return len(results) > 0
 
+    def get_template_content(template_id, headers):
+        url = f"https://api.notion.com/v1/blocks/{template_id}/children"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json().get("results", [])
+
+    def append_template_to_page(page_id, template_content, headers):
+        url = f"https://api.notion.com/v1/blocks/{page_id}/children"
+        data = {"children": template_content}
+        response = requests.patch(url, headers=headers, json=data)
+        response.raise_for_status()
+
     headers = {
         "Authorization": f"Bearer {NOTION_TOKEN}",
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
     }
+
+    TEMPLATE_ID = os.getenv("NOTION_TEMPLATE_ID")
+    if not TEMPLATE_ID:
+        print("Missing NOTION_TEMPLATE_ID")
+        return
 
     for offset in range(3):  # 创建当天及后续两天
         target_date = (datetime.date.today() + datetime.timedelta(days=offset)).isoformat()
@@ -51,14 +67,18 @@ def run():
                 "Date": {
                     "date": {"start": target_date}
                 }
-            },
-            "template_id": TEMPLATE_ID
+            }
         }
 
         try:
             response = requests.post("https://api.notion.com/v1/pages", headers=headers, json=data)
-            print("API Response:", response.text)  # 打印 API 响应内容
             response.raise_for_status()
+            new_page_id = response.json().get("id")
+
+            # 获取模板内容并追加到新页面
+            template_content = get_template_content(TEMPLATE_ID, headers)
+            append_template_to_page(new_page_id, template_content, headers)
+
         except requests.exceptions.RequestException as e:
             print(f"{target_date} 页面创建失败: {e}")
         else:
