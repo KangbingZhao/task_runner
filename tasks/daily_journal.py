@@ -7,8 +7,9 @@ def run():
     load_env()
     NOTION_TOKEN = os.getenv("NOTION_TOKEN")
     DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
-    if not NOTION_TOKEN or not DATABASE_ID:
-        print("Missing NOTION_TOKEN or DATABASE_ID")
+    TEMPLATE_ID = os.getenv("NOTION_TEMPLATE_ID")
+    if not NOTION_TOKEN or not DATABASE_ID or not TEMPLATE_ID:
+        print("Missing NOTION_TOKEN, DATABASE_ID or NOTION_TEMPLATE_ID")
         return
 
     def page_exists(date_str, headers, database_id):
@@ -51,20 +52,7 @@ def run():
                     "date": {"start": target_date}
                 }
             },
-            "children": [
-                {
-                    "object": "block",
-                    "type": "heading_2",
-                    "heading_2": {
-                        "rich_text": [{"type": "text", "text": {"content": "今天的感受"}}]
-                    }
-                },
-                {
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {"rich_text": []}
-                }
-            ]
+            "template_id": TEMPLATE_ID
         }
 
         try:
