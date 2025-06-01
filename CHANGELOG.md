@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/KangbingZhao/task_runner/compare/v0.2.0...v0.3.0) (2025-06-01)
+
+
+### Features
+
+* **daily_journal:** create entries for today and next two days ([f167850](https://github.com/KangbingZhao/task_runner/commit/f167850261dbc280a6f31df43d299fc72cc71ac7))
+* **daily_journal:** create entries for today and next two days ([c698a27](https://github.com/KangbingZhao/task_runner/commit/c698a2703b3f210e41690dbdee5ed6d07693c2d1))
+
 ## [0.2.0](https://github.com/KangbingZhao/task_runner/compare/v0.1.0...v0.2.0) (2025-05-23)
 
 
