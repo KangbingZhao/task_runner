@@ -45,10 +45,11 @@ def run():
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         properties = response.json().get("properties", {})
-        # 过滤掉只读属性
+        # 过滤掉只读属性和不支持的类型
         filtered_properties = {
             key: value for key, value in properties.items()
             if key not in ["created_time", "last_edited_time", "created_by", "last_edited_by"]
+            and value.get("type") not in ["created_time", "multi_select"]
         }
         return filtered_properties
 
@@ -93,6 +94,8 @@ def run():
 
         try:
             response = requests.post("https://api.notion.com/v1/pages", headers=headers, json=data)
+            print("API Request Data:", data)  # 打印请求数据
+            print("API Response:", response.text)  # 打印 API 响应内容
             response.raise_for_status()
             new_page_id = response.json().get("id")
 
